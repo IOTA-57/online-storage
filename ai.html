@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & データサイエンス英語専門用語チートシート</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white py-6 px-4 sm:px-6 shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+                    <i data-lucide="brain-circuit" class="text-indigo-400 w-8 h-8"></i>
+                    AI English Cheatsheet
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Kaggle Learn や技術ドキュメントを英語で読み解くための専門用語集</p>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i data-lucide="search" class="text-slate-400 w-5 h-5"></i>
+                </span>
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="英語・日本語・説明から検索..." 
+                    class="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all"
+                >
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 flex flex-col md:flex-row gap-6">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 sticky top-28">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">カテゴリ</h2>
+                <nav class="space-y-1" id="category-menu">
+                    <!-- Categories will be generated here -->
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Terminology Display Area -->
+        <section class="flex-grow space-y-8" id="terms-container">
+            <!-- Terms will be rendered dynamically here -->
+        </section>
+    </main>
+
+    <!-- Copy notification toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50 text-sm">
+        <i data-lucide="check-circle" class="text-emerald-400 w-5 h-5"></i>
+        <span id="toast-message">クリップボードにコピーしました！</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-500 py-6 text-center text-sm border-t border-slate-900 mt-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <p>© 2026 AI English Cheatsheet. Built for Kaggle & AI Learners.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Data and Logic -->
+    <script>
+        // Terminology Data
+        const termData = [
+            {
+                category: "ML Basics",
+                categoryJa: "機械学習の基本構造",
+                icon: "cpu",
+                terms: [
+                    { en: "Machine Learning (ML)", ja: "機械学習", desc: "データからパターンを学習して予測や判断を行う技術の総称。" },
+                    { en: "Supervised Learning", ja: "教師あり学習", desc: "正解ラベル（ターゲット）がついたデータを用いてモデルを訓練する手法。" },
+                    { en: "Unsupervised Learning", ja: "教師なし学習", desc: "正解ラベルのないデータから、構造やパターンを探索する手法（クラスタリング等）。" },
+                    { en: "Reinforcement Learning (RL)", ja: "強化学習", desc: "エージェントが環境の中で行動を選択し、報酬を最大化するように学習する手法。" },
+                    { en: "Training Data / Train Set", ja: "訓練データ / 学習データ", desc: "モデルのパラメータを最適化（学習）するために使用するデータ。" },
+                    { en: "Validation Data / Val Set", ja: "検証データ", desc: "ハイパーパラメータの調整や、過学習を防ぐためのモデル評価に使用するデータ。" },
+                    { en: "Test Data / Test Set", ja: "テストデータ", desc: "最終的にモデルの汎化性能を測定するために使用する、学習には一切使わないデータ。" },
+                    { en: "Generalization", ja: "汎化能力", desc: "未知の（新しい）データに対して、モデルがどれだけ正しく予測できるかという能力。" },
+                    { en: "Overfitting", ja: "過学習 / オーバーフィッティング", desc: "訓練データに適合しすぎて、未知のデータに対する予測性能（汎化能力）が低下した状態。" },
+                    { en: "Underfitting", ja: "未学習 / アンダーフィッティング", desc: "モデルが単純すぎて、データ内のパターンを十分に学習できていない状態。" },
+                    { en: "Bias-Variance Tradeoff", ja: "バイアス・バリアンスのトレードオフ", desc: "モデルの単純さ（高いバイアス）と複雑さ（高いバリアンス）の間で発生する、片方を下げるともう片方が上がる関係。" }
+                ]
+            },
+            {
+                category: "Feature Engineering",
+                categoryJa: "特徴量エンジニアリング & 前処理",
+                icon: "sliders",
+                terms: [
+                    { en: "Feature / Predictor", ja: "特徴量 / 説明変数", desc: "予測のためにモデルに入力する個々の変数（Kaggleでは列(column)を指す）。" },
+                    { en: "Target / Label", ja: "ターゲット / 正解ラベル", desc: "モデルが予測しようとする目的変数（Kaggleではyで表されることが多い）。" },
+                    { en: "Missing Value / Null Value", ja: "欠損値", desc: "データの中に値が存在しない状態。`NaN`（Not a Number）などで表される。" },
+                    { en: "Imputation", ja: "補完 / インピュテーション", desc: "欠損値を平均値や中央値、あるいは予測モデルを使って埋める処理。" },
+                    { en: "Categorical Variable", ja: "カテゴリ変数", desc: "性別、国名、カテゴリなど、数値ではなくグループや区分を表すデータ。" },
+                    { en: "Numerical Variable", ja: "数値変数", desc: "年齢、価格、温度など、大小の比較や計算ができる数値データ。" },
+                    { en: "One-Hot Encoding", ja: "ワンホット・エンコーディング", desc: "カテゴリ変数を、各カテゴリに対応する0と1のバイナリ列（ダミー変数）に変換する手法。" },
+                    { en: "Ordinal Encoding / Label Encoding", ja: "順序エンコーディング / ラベルエンコーディング", desc: "カテゴリに整数（0, 1, 2...）を割り当てる変換方法。" },
+                    { en: "Feature Scaling", ja: "特徴量のスケーリング", desc: "データの範囲を統一する処理。標準化（Standardization）や正規化（Normalization）がある。" },
+                    { en: "Outlier", ja: "外れ値", desc: "他のデータから極端に離れた異常値。モデルに悪影響を与えるため除去や処理を検討する。" },
+                    { en: "Dimensionality Reduction", ja: "次元削減", desc: "情報の損失を最小限に抑えつつ、特徴量の数を減らす技術（PCAなど）。" }
+                ]
+            },
+            {
+                category: "Algorithms",
+                categoryJa: "主要なアルゴリズム・モデル",
+                icon: "git-branch",
+                terms: [
+                    { en: "Linear Regression", ja: "線形回帰", desc: "入力を直線（または超平面）に当てはめて、連続値の予測を行う最も基本的な回帰アルゴリズム。" },
+                    { en: "Logistic Regression", ja: "ロジスティック回帰", desc: "出力が0から1の確率になるように関数を適用し、分類を行うアルゴリズム。" },
+                    { en: "Decision Tree", ja: "決定木", desc: "データを条件分岐のツリー構造で分割していくことで分類や回帰を行うモデル。" },
+                    { en: "Random Forest", ja: "ランダムフォレスト", desc: "多数の決定木をランダムに作成し、その平均や多数決で予測するアンサンブル手法。" },
+                    { en: "Gradient Boosting", ja: "勾配ブースティング", desc: "前の木のミス（残差）を修正するように新しい木を順番に追加していく強力な手法（XGBoost, LightGBMなど）。" },
+                    { en: "Support Vector Machine (SVM)", ja: "サポートベクターマシン", desc: "境界線（マージン）を最大化することでデータを綺麗に分類する手法。" },
+                    { en: "K-Nearest Neighbors (KNN)", ja: "K近傍法", desc: "予測対象に近いK個のデータの多数決で分類を決定するシンプルな手法。" },
+                    { en: "Ensemble Learning", ja: "アンサンブル学習", desc: "複数の異なるモデルを組み合わせて、単一のモデルよりも高い予測精度を得る手法。" }
+                ]
+            },
+            {
+                category: "Model Evaluation",
+                categoryJa: "モデル評価 & 交差検証",
+                icon: "line-chart",
+                terms: [
+                    { en: "Cross-Validation (CV)", ja: "交差検証", desc: "データをいくつかに分割し、学習と評価を繰り返すことで、信頼性の高い評価スコアを得る手法。" },
+                    { en: "K-Fold Cross-Validation", ja: "K分割交差検証", desc: "データをK個に均等に分け、1個を評価用、残りを学習用としてK回繰り返すCV手法。" },
+                    { en: "Stratified K-Fold", ja: "層化K分割交差検証", desc: "各分割（フォールド）に含まれる正解ラベルの比率が均等になるように分割するCV。主に分類で使用。" },
+                    { en: "Confusion Matrix", ja: "混同行列", desc: "予測結果と実際の正解の組み合わせ（TP, FP, FN, TN）を表にしたもの。" },
+                    { en: "Accuracy", ja: "正解率 / アキュラシー", desc: "すべての予測のうち、正解した割合。データが不均衡な場合は指標として不適切になることがある。" },
+                    { en: "Precision", ja: "適合率 / プリシジョン", desc: "「陽性」と予測したもののうち、実際に陽性だった割合（無駄な陽性予測を避けたい時に重視）。" },
+                    { en: "Recall / Sensitivity", ja: "再現率 / リコール / 感度", desc: "実際に陽性であるもののうち、正しく「陽性」と予測できた割合（見落としを減らしたい時に重視）。" },
+                    { en: "F1-Score", ja: "F1スコア", desc: "適合率（Precision）と再現率（Recall）の調和平均。バランスの良さを示す指標。" },
+                    { en: "ROC-AUC", ja: "ROC曲線の下部面積", desc: "分類モデルの閾値を変化させたときの判定性能を総合的に評価する指標。1に近づくほど高性能。" },
+                    { en: "Mean Absolute Error (MAE)", ja: "平均絶対誤差", desc: "予測値と実測値の差（誤差）の絶対値の平均。直感的に理解しやすい回帰の評価指標。" },
+                    { en: "Mean Squared Error (MSE)", ja: "平均二乗誤差", desc: "誤差を二乗した値の平均。大きな誤差に対してペナルティが大きくなる回帰の指標。" },
+                    { en: "Root Mean Squared Error (RMSE)", ja: "二乗平均平方根誤差", desc: "MSEの平方根。単位を元のデータと揃えた回帰指標で、Kaggleで非常によく使われる。" }
+                ]
+            },
+            {
+                category: "Deep Learning",
+                categoryJa: "ディープラーニング (深層学習)",
+                icon: "layers",
+                terms: [
+                    { en: "Deep Learning (DL)", ja: "深層学習 / ディープラーニング", desc: "多層のニューラルネットワークを用いた、高度なパターン認識が可能な機械学習技術。" },
+                    { en: "Artificial Neural Network (ANN)", ja: "ニューラルネットワーク", desc: "人間の脳の神経回路（ニューロン）を模した数理モデル。" },
+                    { en: "Activation Function", ja: "活性化関数", desc: "ニューラルネットに非線形性を導入するための関数。ReLU, Sigmoid, Softmax などがある。" },
+                    { en: "Backpropagation", ja: "誤差逆伝播法 / バックプロパゲーション", desc: "出力の誤差を後ろの層（入力側）に向かって伝播させ、効率よく重みを更新するアルゴリズム。" },
+                    { en: "Epoch", ja: "エポック", desc: "訓練データ全体がニューラルネットワークを1往復（学習）した回数。" },
+                    { en: "Batch Size", ja: "バッチサイズ", desc: "パラメータを1回更新するために、1度に処理するデータのサンプル数。" },
+                    { en: "Gradient Descent", ja: "勾配降下法", desc: "損失関数を最小化するために、パラメータの傾き（勾配）を計算して値を更新するアルゴリズム。" },
+                    { en: "Loss Function / Cost Function", ja: "損失関数 / コスト関数", desc: "モデルの予測値と本当の正解の「ズレ（悪さ）」を測るための関数。" },
+                    { en: "Learning Rate (LR)", ja: "学習率", desc: "1回の学習でパラメータ（重み）をどの程度大きく更新するかを決めるハイパーパラメータ。" },
+                    { en: "Optimizer", ja: "最適化アルゴリズム", desc: "学習率を自動調整しながら重みを更新する仕組み（Adam, SGDなど）。" },
+                    { en: "Dropout", ja: "ドロップアウト", desc: "学習中にランダムに一部のニューロンを無効化することで過学習を防ぐ手法。" }
+                ]
+            },
+            {
+                category: "NLP & CV",
+                categoryJa: "自然言語(NLP) & 画像認識(CV)",
+                icon: "eye",
+                terms: [
+                    { en: "Natural Language Processing (NLP)", ja: "自然言語処理", desc: "テキストや音声といった人間が使う言葉をコンピュータに処理・理解させる技術。" },
+                    { en: "Computer Vision (CV)", ja: "コンピュータビジョン", desc: "画像や動画をコンピュータに理解させ、物体検出や画像分類を行う技術。" },
+                    { en: "Convolutional Neural Network (CNN)", ja: "畳み込みニューラルネットワーク", desc: "主に画像の特徴量を捉えるのに適した、グリッド構造のデータを扱うニューラルネット。" },
+                    { en: "Recurrent Neural Network (RNN)", ja: "リカレントニューラルネットワーク", desc: "時系列データやテキストデータなど、順番に意味があるデータ（シーケンス）の処理に適したニューラルネット。" },
+                    { en: "Transformer", ja: "トランスフォーマー", desc: "現在のLLM（大規模言語モデル）の基盤となった、Attention機構を核とする超強力なモデル構造。" },
+                    { en: "Large Language Model (LLM)", ja: "大規模言語モデル", desc: "莫大なテキストデータで事前学習され、高度な対話や生成ができるニューラルネットワーク（GPTなど）。" },
+                    { en: "Tokenization", ja: "トークン化 / トークナイズ", desc: "文章を単語や文字、あるいはサブワード（トークン）と呼ばれる最小単位に分割すること。" },
+                    { en: "Embedding", ja: "埋め込み / エンベディング", desc: "単語や画像などの意味を、固定次元の「ベクトル（数値の配列）」に変換すること。" },
+                    { en: "Fine-tuning", ja: "ファインチューニング / 微調整", desc: "すでに大量データで学習済みのモデル（事前学習モデル）を、特定のタスクに合わせて追加学習させること。" },
+                    { en: "Transfer Learning", ja: "転移学習", desc: "あるタスクで学習した知識（モデルの重み）を、別の新しいタスクの学習に再利用・適用する手法。" }
+                ]
+            }
+        ];
+
+        // Setup Categories
+        function initApp() {
+            const sidebar = document.getElementById('category-menu');
+            const container = document.getElementById('terms-container');
+            
+            // Render Categories in Sidebar
+            termData.forEach((cat, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                    index === 0 ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'
+                }`;
+                btn.innerHTML = `
+                    <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
+                    <span>${cat.categoryJa}</span>
+                `;
+                btn.onclick = () => {
+                    // Update active styles
+                    document.querySelectorAll('#category-menu button').forEach(b => {
+                        b.classList.remove('bg-indigo-50', 'text-indigo-700');
+                        b.classList.add('text-slate-600', 'hover:bg-slate-100');
+                    });
+                    btn.classList.add('bg-indigo-50', 'text-indigo-700');
+                    btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                    
+                    // Smooth scroll to section
+                    const targetEl = document.getElementById(`sec-${cat.category}`);
+                    if (targetEl) {
+                        const yOffset = -120; // sticky header offset
+                        const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        window.scrollTo({top: y, behavior: 'smooth'});
+                    }
+                };
+                sidebar.appendChild(btn);
+            });
+
+            // Render Term Cards
+            renderTerms();
+            lucide.createIcons();
+            
+            // Search Event
+            document.getElementById('search-input').addEventListener('input', handleSearch);
+        }
+
+        // Render Terms Function
+        function renderTerms(filteredData = termData) {
+            const container = document.getElementById('terms-container');
+            container.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-xl border border-slate-200">
+                        <i data-lucide="info" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+                        <p class="text-slate-500">一致する専門用語が見つかりませんでした。</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filteredData.forEach(cat => {
+                const section = document.createElement('div');
+                section.id = `sec-${cat.category}`;
+                section.className = "scroll-mt-32";
+
+                section.innerHTML = `
+                    <h2 class="text-lg font-bold text-slate-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <i data-lucide="${cat.icon}" class="text-indigo-600 w-5 h-5"></i>
+                        <span>${cat.categoryJa} <span class="text-sm font-normal text-slate-400">(${cat.category})</span></span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${cat.terms.map(t => `
+                            <div class="term-card bg-white p-4 rounded-xl border border-slate-200 hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+                                <div>
+                                    <div class="flex justify-between items-start gap-2 mb-1">
+                                        <h3 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">${t.en}</h3>
+                                        <button onclick="copyTerm('${t.en}', '${t.ja}')" class="text-slate-400 hover:text-indigo-600 p-1 rounded hover:bg-slate-100 transition-all" title="コピーする">
+                                            <i data-lucide="copy" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-indigo-600 text-sm font-semibold mb-2">${t.ja}</p>
+                                    <p class="text-slate-600 text-xs leading-relaxed">${t.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+            lucide.createIcons();
+        }
+
+        // Search logic
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) {
+                renderTerms(termData);
+                return;
+            }
+
+            const filtered = termData.map(cat => {
+                const matchedTerms = cat.terms.filter(t => 
+                    t.en.toLowerCase().includes(query) || 
+                    t.ja.toLowerCase().includes(query) || 
+                    t.desc.toLowerCase().includes(query)
+                );
+                return {
+                    ...cat,
+                    terms: matchedTerms
+                };
+            }).filter(cat => cat.terms.length > 0);
+
+            renderTerms(filtered);
+        }
+
+        // Copy functionality using document.execCommand fallback
+        function copyTerm(en, ja) {
+            const textToCopy = `${en} (${ja})`;
+            
+            // Temporary textarea creation for iFrame safe copy
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.style.position = 'fixed'; // Avoid scrolling to bottom
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast(`コピーしました: ${textToCopy}`);
+            } catch (err) {
+                console.error('コピーできませんでした:', err);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Show Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            
+            toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
+            }, 2500);
+        }
+
+        // Run application
+        window.onload = initApp;
+    </script>
+</body>
+</html>
